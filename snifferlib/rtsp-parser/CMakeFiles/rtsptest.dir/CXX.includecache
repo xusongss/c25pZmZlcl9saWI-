@@ -1,0 +1,34 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/xusong/project/c25pZmZlcl9saWI-/snifferlib/rtsp-parser/http11_parser.cpp
+http11_parser.h
+/home/xusong/project/c25pZmZlcl9saWI-/snifferlib/rtsp-parser/http11_parser.h
+stdio.h
+-
+assert.h
+-
+stdlib.h
+-
+ctype.h
+-
+string.h
+-
+
+/home/xusong/project/c25pZmZlcl9saWI-/snifferlib/rtsp-parser/http11_parser.h
+sys/types.h
+-
+stddef.h
+-
+
+/home/xusong/project/c25pZmZlcl9saWI-/snifferlib/rtsp-parser/main.cpp
+http11_parser.h
+/home/xusong/project/c25pZmZlcl9saWI-/snifferlib/rtsp-parser/http11_parser.h
+stdio.h
+-
+

@@ -1,7 +1,7 @@
 #include "sniffer_lib.h"
 #include <stdlib.h>
 #include <string.h>
-static const char *_snifferGetOptionContent(p_sniffer_options_t optionsHead, char *option)
+const char *_snifferGetOptionContent(p_sniffer_options_t optionsHead, char *option)
 {
 	p_sniffer_options_t current = optionsHead;
 	while (current != NULL){
@@ -17,9 +17,9 @@ static const char *_snifferGetOptionContent(p_sniffer_options_t optionsHead, cha
 
  const char *snifferGetOptionContent(sniffer_notify_message_t * pmsg, char *option)
  {
-	if( (SNIFFER_NOTIFY_MESSAGE_RTSP_REQUEST <= pmsg->m_type)  && (pmsg->m_type <= SNIFFER_NOTIFY_MESSAGE_RTSP_RESPONSE))
+	if(NULL != pmsg->getOptionContent)
 	{
-		return _snifferGetOptionContent(pmsg->body.m_rtsp_msg.m_options, option);
+		return pmsg->getOptionContent(pmsg, option);
 	}
 	return NULL;
  }
@@ -62,12 +62,13 @@ void snifferFreeOptionList(p_sniffer_options_t optionsHead){
 }
 void snifferFreeNotifyMessage(sniffer_notify_message_t * pmsg)
 {
-	if( (SNIFFER_NOTIFY_MESSAGE_RTSP_REQUEST <= pmsg->m_type)  && (pmsg->m_type <= SNIFFER_NOTIFY_MESSAGE_RTSP_RESPONSE))
+
+	if(NULL != pmsg->free)
 	{
-		if(NULL != pmsg->body.m_rtsp_msg.m_options)
-		{
-			snifferFreeOptionList(pmsg->body.m_rtsp_msg.m_options);
-		}
+		pmsg->free(pmsg);
 	}
-	free(pmsg);
+	else
+	{
+		free(pmsg);
+	}
 }

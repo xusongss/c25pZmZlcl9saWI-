@@ -21,6 +21,8 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
+			UseOfMFC="1"
+			UseOfATL="0"
 			CharacterSet="1"
 			>
 			<Tool
@@ -44,7 +46,7 @@
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
+				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="4"
@@ -71,6 +73,7 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
+				EmbedManifest="true"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -172,7 +175,19 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\cpe_info.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\display_msg.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\mainprocess.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\process_msg.cpp"
 				>
 			</File>
 			<File
@@ -185,6 +200,18 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath=".\cpe_info.h"
+				>
+			</File>
+			<File
+				RelativePath=".\display_msg.h"
+				>
+			</File>
+			<File
+				RelativePath=".\process_msg.h"
+				>
+			</File>
 			<File
 				RelativePath=".\stdafx.h"
 				>

@@ -21,6 +21,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
+			UseOfMFC="1"
 			CharacterSet="1"
 			>
 			<Tool
@@ -41,11 +42,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".\winpacp\Include;.\winpacp\Include\pcap"
+				AdditionalIncludeDirectories=".\;.\rtsp-parser;.\winpacp\Include;.\winpacp\Include\pcap"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
+				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="4"
@@ -155,7 +156,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\rtsp-parser\http11_parser.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\rtsp_parser.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\rtsp-parser\sniffer_key_value.cpp"
 				>
 			</File>
 			<File
@@ -182,6 +191,10 @@
 			>
 			<File
 				RelativePath=".\rtsp_parser.h"
+				>
+			</File>
+			<File
+				RelativePath=".\sniffer_key_value.h"
 				>
 			</File>
 			<File

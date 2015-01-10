@@ -23,14 +23,19 @@ int snifferGetDevHandles(devHandle_t * p_handle, int size)
     for(d = alldevs; d != NULL; d = d->next)
     {
 		i ++;
+#if 0
         fprintf(stderr, "%d. %s\n", i, d->name);
+#endif
 
 		p_handle->m_handle = i;
 
 		strcpy(p_handle->m_name,d->name);
 
+		p_handle->m_file = NULL;
+
 		p_handle++;
 
+#if 0
         if (d->description)
 		{
            fprintf(stderr, "(%s)\n", d->description);
@@ -39,6 +44,7 @@ int snifferGetDevHandles(devHandle_t * p_handle, int size)
 		{
            fprintf(stderr, "(No description available)\n");
 		}
+#endif
     }
 
     if(i == 0)

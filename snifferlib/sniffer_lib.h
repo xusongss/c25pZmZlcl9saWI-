@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include "sniffer_type.h"
 #include "sniffer_msg.h"
+#include "sniffer_key_value.h"
 
 #define DLL_EXPORT __declspec(dllexport) 
 extern "C"
@@ -14,6 +15,7 @@ extern "C"
 	{
 		int m_handle;
 		char m_name[DEVICE_NAME_LENGTH];
+		const char *m_file;
 	}devHandle_t;
 
 	/*

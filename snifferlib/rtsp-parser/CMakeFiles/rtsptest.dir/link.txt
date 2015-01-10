@@ -1,0 +1,1 @@
+/usr/bin/c++.exe    -Wl,--enable-auto-import  CMakeFiles/rtsptest.dir/main.cpp.o CMakeFiles/rtsptest.dir/http11_parser.cpp.o  -o rtsptest.exe -Wl,--out-implib,librtsptest.dll.a -Wl,--major-image-version,0,--minor-image-version,0  

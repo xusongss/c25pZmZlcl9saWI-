@@ -3,75 +3,108 @@
 
 #include "stdafx.h"
 #include <iostream>
+#include <time.h>
+#include "display_msg.h"
+#include "process_msg.h"
 
 #include "../snifferlib/sniffer_lib.h"
 #pragma comment(lib,"../debug/snifferlib.lib")
 #pragma comment(lib,"../wpcap.lib")
-int display(sniffer_notify_message_t * pmsg, const u_char * usr_param)
-{
-	if(NULL == pmsg)
-		return 0;
-	if( (SNIFFER_NOTIFY_MESSAGE_RTSP_REQUEST <= pmsg->m_type)  && (pmsg->m_type <= SNIFFER_NOTIFY_MESSAGE_RTSP_RESPONSE))
-	{
-		printf("--------------------%s--------------------\n", 
-			pmsg->m_type == SNIFFER_NOTIFY_MESSAGE_RTSP_REQUEST ? "RTSP REQUEST" : "RTSP RESPONSE");
-		printf("%d.%d.%d.%d:%d", 
-			pmsg->m_ip_saddr.byte1, 
-			pmsg->m_ip_saddr.byte2, 
-			pmsg->m_ip_saddr.byte3, 
-			pmsg->m_ip_saddr.byte4,
-			u_short(pmsg->m_ip_sport.byte1 << 8 | pmsg->m_ip_sport.byte2));
-		printf("==>");
-		printf("%d.%d.%d.%d:%d \n",
-			pmsg->m_ip_daddr.byte1, 
-			pmsg->m_ip_daddr.byte2, 
-			pmsg->m_ip_daddr.byte3,  
-			pmsg->m_ip_daddr.byte4, 
-			u_short(pmsg->m_ip_dport.byte1 << 8 | pmsg->m_ip_dport.byte2));
-		if(pmsg->m_type == SNIFFER_NOTIFY_MESSAGE_RTSP_REQUEST)
-		{
-			printf("%s %s\n", pmsg->body.m_rtsp_msg.m_command, pmsg->body.m_rtsp_msg.m_target);
-		}
-		else
-		{
-			printf("%d %s\n", pmsg->body.m_rtsp_msg.m_status, pmsg->body.m_rtsp_msg.m_status_string);
-		}
-		sniffer_options_t * option = pmsg->body.m_rtsp_msg.m_options;
-		while(NULL != option)
-		{
-			printf("%s: %s\n", option->option, option->content);
-			option = option->next;
-		}
-		std::cout<<std::endl;
 
-		snifferFreeNotifyMessage(pmsg);
-	}
-	
+int write_file = 0;
+
+static int processmsg(sniffer_notify_message_t * pmsg, const u_char * usr_param)
+{
+	Processer::processMsg(Processer::getInstance(), pmsg);
 	return 0;
 }
-
 static notify_call_back_t sniffer_call = 
 {
 	NULL,
-	display
+	processmsg
 };
 
-int _tmain(int argc, _TCHAR* argv[])
+static void usage()
 {
-	int a=10;
-	int b=5;
-	//std::cout<<Add(a, b);
+	std::cout<<"\t ? help"<<std::endl;
+	std::cout<<"\t -l list all net devices"<<std::endl;
+	std::cout<<"\t -i select a net device"<<std::endl;
+	std::cout<<"\t -f select a file"<<std::endl;
+
+}
+int main(int argc, const char * argv[])
+{
 	devHandle_t devices[10];
-	int size = snifferGetDevHandles(devices, 10);
-	//std::cout<<std::endl;
-	for(int i = 0; i< size; i++)
+	int handle = -1;
+	const char * filename = NULL;
+
+	int size = snifferGetDevHandles(devices, sizeof(devices)/ sizeof(devices[0]));
+
+	for(int i = 0; i < argc; i++)
 	{
-		std::cout<<"handle:"<<devices[i].m_handle<<std::endl;
-		std::cout<<"handle name:"<<devices[i].m_name<<std::endl;
-		std::cout<<"this is a test"<<std::endl;
-		
+		if(!strcmp(argv[i], "?"))
+		{
+			usage();
+			return 0;
+		}
+		else if(!strcmp(argv[i], "-l"))
+		{
+			for(int i = 0; i< size; i++)
+			{
+				std::cout<<"device\t num:"<<i<<std::endl;
+				std::cout<<"\t name:"<<devices[i].m_name<<std::endl;
+			}
+			return 0;
+		}
+		else if(!strcmp(argv[i], "-i"))
+		{
+			if((i + 1) >= argc)
+			{
+				std::cout<<"please select a device"<<std::endl;
+				usage();
+				return 0;
+			}
+			else
+			{
+				handle = atoi(argv[i+1]);
+			}
+		}
+		else if(!strcmp(argv[i], "-f"))
+		{
+			if((i + 1) >= argc)
+			{
+				std::cout<<"please select a device"<<std::endl;
+				usage();
+				return 0;
+			}
+			else
+			{
+				filename = argv[i+1];
+			}
+		}
+		else
+		{
+			//usage();
+		}
+
 	}
-	snifferPacketsProcessLoop(&devices[0], &sniffer_call);
+	if(-1 != handle && handle < size)
+	{
+		snifferPacketsProcessLoop(&devices[handle], &sniffer_call);
+		goto end;
+	}
+	else if(NULL  != filename)
+	{
+		write_file = 1;
+
+		devices[0].m_file = filename;
+
+		snifferPacketsProcessLoop(&devices[0], &sniffer_call);
+
+		goto end;
+	}
+	
+end:
 
 	return 0;
 }

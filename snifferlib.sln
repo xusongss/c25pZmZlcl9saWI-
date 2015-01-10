@@ -8,6 +8,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mainprocess", "mainprocess\
 		{08A56197-9867-4572-AC40-11F231508E29} = {08A56197-9867-4572-AC40-11F231508E29}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KeyValueTest", "KeyValueTest\KeyValueTest.vcproj", "{E64DFB68-E3E3-4BD0-A809-5D0C8BBC7897}"
+	ProjectSection(ProjectDependencies) = postProject
+		{08A56197-9867-4572-AC40-11F231508E29} = {08A56197-9867-4572-AC40-11F231508E29}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -22,6 +27,10 @@ Global
 		{2DAF979A-6766-493E-8E87-2E26B725E234}.Debug|Win32.Build.0 = Debug|Win32
 		{2DAF979A-6766-493E-8E87-2E26B725E234}.Release|Win32.ActiveCfg = Release|Win32
 		{2DAF979A-6766-493E-8E87-2E26B725E234}.Release|Win32.Build.0 = Release|Win32
+		{E64DFB68-E3E3-4BD0-A809-5D0C8BBC7897}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E64DFB68-E3E3-4BD0-A809-5D0C8BBC7897}.Debug|Win32.Build.0 = Debug|Win32
+		{E64DFB68-E3E3-4BD0-A809-5D0C8BBC7897}.Release|Win32.ActiveCfg = Release|Win32
+		{E64DFB68-E3E3-4BD0-A809-5D0C8BBC7897}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

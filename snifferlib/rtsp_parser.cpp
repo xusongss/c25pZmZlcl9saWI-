@@ -1,5 +1,5 @@
 #include "rtsp_parser.h"
-
+#include <string.h>
 /* Check if String s begins with the given prefix */
 static int startsWith(const char *s, const char *prefix) {
 	if (strncmp(s, prefix, strlen(prefix)) == 0){

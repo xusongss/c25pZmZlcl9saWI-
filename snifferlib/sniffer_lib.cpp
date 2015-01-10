@@ -15,10 +15,7 @@ static protocol_model_t g_protocols[]=
 		sniffer_rtsp_process
 	}
 };
-int Add(int &a,int &b) 
-{ 
-    return a+b;  
-} 
+
 static void display_ether_header(ether_header_t *header)
 {
 	printf("\n");
@@ -71,7 +68,7 @@ void packet_handler(u_char *param, const struct pcap_pkthdr *header, const u_cha
 		//只处理Ethernet II类型的包
 		return;
 	}
-	
+	//display_ether_header(packetdata.eh);
 	packetdata.ih = (ip_header *) (pkt_data + ETHER_HEADER_LEN(packetdata.eh)); //以太网头部长度
 
 	if(packetdata.ih->proto == ntohs(TCP_PROTOCAL))
@@ -99,15 +96,17 @@ void packet_handler(u_char *param, const struct pcap_pkthdr *header, const u_cha
 	}
 
 	/* 将时间戳转换成可识别的格式 */
+#if 0
 	struct tm *ltime;
     char timestr[16];
     time_t local_tv_sec;
     local_tv_sec = header->ts.tv_sec;
     ltime=localtime(&local_tv_sec);
     strftime( packetdata.timestr, sizeof( packetdata.timestr), "%H:%M:%S", ltime);
+#endif
 	//printf("%s,%.6ld len:%d\n", timestr, header->ts.tv_usec, header->len);
 	//	printf("etherii_len + ip_len + tcp_or_udp_header_len = %d\n", etherii_len + ip_len + tcp_or_udp_header_len);
-
+	packetdata.tv_sec = header->ts.tv_sec;
 	packetdata.body = pkt_data + ( ETHER_HEADER_LEN(packetdata.eh)  + IP_HEADER_LEN(packetdata.ih) + tcp_or_udp_header_len);
 
 	packetdata.body_length =  header->len - ( ETHER_HEADER_LEN(packetdata.eh) + IP_HEADER_LEN(packetdata.ih) + tcp_or_udp_header_len);
@@ -148,34 +147,76 @@ int snifferPacketsProcessLoop(devHandle_t * p_handle, NotifyCallback cb)
 	int i = 0;
 	char errbuf[PCAP_ERRBUF_SIZE]; //error buffer
 
-	 if(pcap_findalldevs(&alldevs, errbuf) == -1)
-    {
-        fprintf(stderr, "Error in pcap_findalldevs_ex: %s\n", errbuf);
-		alldevs = NULL;
-		return -1;
-    }
-	for(d=alldevs, i=0; i < p_handle->m_handle -1; d=d->next, i++); /* jump to the selected interface */
+	char source[PCAP_BUF_SIZE];
 
+	char * p_source = NULL;
+
+	const char * file;
+
+	bool isformfile = false;
+
+	if(NULL != p_handle->m_file)
+	{
+		file = p_handle->m_file;
+
+		isformfile = true;
+
+		/* 根据新WinPcap语法创建一个源字符串 */
+		if ( pcap_createsrcstr( source,         // 源字符串
+                            PCAP_SRC_FILE,  // 我们要打开的文件
+                            NULL,           // 远程主机
+                            NULL,           // 远程主机端口
+                            file,        // 我们要打开的文件名
+                            errbuf          // 错误缓冲区
+							) != 0)
+		{
+			fprintf(stderr,"\nError creating a source string\n");
+			return -1;
+		}
+		else
+		{
+			p_source = source;
+		}
+	}
+	else
+	{
+		 if(pcap_findalldevs(&alldevs, errbuf) == -1)
+		{
+			fprintf(stderr, "Error in pcap_findalldevs_ex: %s\n", errbuf);
+			alldevs = NULL;
+			return -1;
+		}
+		for(d=alldevs, i=0; i < p_handle->m_handle -1; d=d->next, i++); /* jump to the selected interface */
+		
+		p_source = d->name;
+		
+	}
+
+	if(NULL == p_source)
+	{
+		fprintf(stderr, "Error source is NULL\n");
+		return -1;
+	}
 	/**/
 	pcap_t* adhandle;
 
-	if((adhandle = pcap_open(d->name, /* the interface name */
+	if((adhandle = pcap_open(p_source, /* the interface name */
                  65536, /* length of packet that has to be retained */
                  PCAP_OPENFLAG_PROMISCUOUS, /* promiscuous mode */
                  1000, /* read time out */
                  NULL, /* auth */
                  errbuf /* error buffer */
                  )) == NULL)
-                 {
-                     fprintf(stderr, "\nUnable to open the adapter. %s is not supported by Winpcap\n",
-                             d->description);
-                     return -1;
-                 }
+             {
+                 fprintf(stderr, "\nUnable to open the adapter. %s is not supported by Winpcap %s \n",
+                         errbuf ,p_source);
+                 return -1;
+             }
 
 	/*设置filter*/
 	struct bpf_program fcode;
 	u_int netmask;
-	if(d->addresses != NULL)
+	if((!isformfile) && d->addresses != NULL)
 	{
         /* 获得接口一个地址的掩码 */
         netmask=((struct sockaddr_in *)(d->addresses->netmask))->sin_addr.S_un.S_addr;
@@ -190,21 +231,34 @@ int snifferPacketsProcessLoop(devHandle_t * p_handle, NotifyCallback cb)
     if (pcap_compile(adhandle, &fcode, packet_filter, 1, netmask) <0 )
     {
         fprintf(stderr,"\nUnable to compile the packet filter. Check the syntax.\n");
-        /* 释放设备列表 */
-        pcap_freealldevs(alldevs);
+
+		if(!isformfile)
+		{
+			/* 释放设备列表 */
+			pcap_freealldevs(alldevs);
+		}
         return -1;
     }
 	//设置过滤器
     if (pcap_setfilter(adhandle, &fcode)<0)
     {
         fprintf(stderr,"\nError setting the filter.\n");
-        /* 释放设备列表 */
-        pcap_freealldevs(alldevs);
+
+       if(!isformfile)
+		{
+			/* 释放设备列表 */
+			pcap_freealldevs(alldevs);
+		}
         return -1;
     }
 
-    printf("\nListening on %s...\n", d->description);
-	pcap_freealldevs(alldevs); // release device list
+	printf("\nListening on %s...\n", p_source);
+	if(!isformfile)
+	{
+		 /* 释放设备列表 */
+		pcap_freealldevs(alldevs); // release device list
+	}
+	
 
 	 /* 开始捕获 */
     pcap_loop(adhandle, 0, packet_handler, (u_char*)cb);
